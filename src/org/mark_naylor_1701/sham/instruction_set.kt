@@ -6,7 +6,9 @@ date:  2020-Aug-23
 /////////////////////////////////////////////////////////////////////////////
 Data structures for machine codes and assembler mnemonics.
 /////////////////////////////////////////////////////////////////////////////
-*/
+ */
+
+//TODO: Create value classes for opcodes and mnemonics.
 
 package org.mark_naylor_1701.sham
 
@@ -51,6 +53,9 @@ object MachineCode {
     val fourByteIndirectCodes: List<String> = fourByteCodes.map { "-" + it }
 
     val allCodes: List<String>  = oneByteCodes + twoByteCodes + fourByteCodes + fourByteIndirectCodes
+
+    val opcodesToMnemonic = allCodes.withIndex().map { it.index.toByte() to it.value }.toMap()
+    val mnemonicsToOpcode = allCodes.withIndex().map { it.value to it.index.toByte() }.toMap()
 }
 
 // ------------------------------------------------------------------------------
