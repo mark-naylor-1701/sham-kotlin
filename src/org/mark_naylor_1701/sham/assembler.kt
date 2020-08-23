@@ -6,8 +6,27 @@
 
 package org.mark_naylor_1701.sham
 
+import java.io.File
+import java.io.FileNotFoundException
+
+
 fun main(args: Array<String>) {
     println("The SHAM assembler")
+
+    try {
+        val sourceFile =  File(Files.asm)
+        val lines = sourceFile.readLines()
+        for (line in lines) println(line)
+
+        val memory = (1..128).map { it.toByte()}
+
+        val rom = File(Files.rom)
+        rom.writeBytes(memory.toByteArray())
+
+
+    } catch (e: FileNotFoundException) {
+        println("System error: ${e.message}")
+    }
 }
 
 // ------------------------------------------------------------------------------

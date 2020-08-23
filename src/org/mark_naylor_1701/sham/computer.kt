@@ -6,8 +6,21 @@
 
 package org.mark_naylor_1701.sham
 
+import java.io.File
+import java.io.FileNotFoundException
+
 fun main(args: Array<String>) {
     println("SHAM: the Simplified Hypothetical AphaNumeric Machine")
+
+    try {
+        val rom = File(Files.rom)
+        val stream = rom.inputStream()
+        println("Rom size: ${rom.length()}")
+        stream.close()
+
+    } catch (e: FileNotFoundException) {
+        println("System error: ${e.message}")
+    }
 }
 
 // ------------------------------------------------------------------------------
