@@ -1,29 +1,45 @@
 // author: Mark W. Naylor
-// file:  bitops.kt
+// file:  binary.kt
 // date:  2020-Aug-23
 
 /////////////////////////////////////////////////////////////////////////////////
 // Kotlin doen't support bit operations on Bytes. This module bridges the gap. //
 /////////////////////////////////////////////////////////////////////////////////
 
-package org.mark_naylor_1701.sham.bitops
+package org.mark_naylor_1701.binarysupport
 
 data class Nybble(val value: Byte)
-vabit
-private val hiNybbleMask = 0xF0
-private val loNybbleMask = 0x0F
 
+private val hiNybbleMask = 0xF0.toByte()
+private val loNybbleMask = 0x0F.toByte()
 
 infix fun Byte.and(that: Byte): Byte {
-     return (this.toInt() and that.toInt()).toByte()
+    return (this.toInt() and that.toInt()).toByte()
+}
+
+infix fun Byte.or(that: Byte): Byte {
+    return (this.toInt() or that.toInt()).toByte()
 }
 
 infix fun Byte.shr(bitCount: Int): Byte {
-     return (this.toInt() shr bitCount).toByte()
+    return (this.toInt() shr bitCount).toByte()
 }
 
 infix fun Byte.shl(bitCount: Int): Byte {
-     return (this.toInt() shl bitCount).toByte()
+    return (this.toInt() shl bitCount).toByte()
+}
+
+fun hiNybble(b: Byte): Nybble {
+    return Nybble((b and hiNybbleMask) shr 4)
+}
+
+fun loNybble(b: Byte): Nybble {
+    return Nybble((b and loNybbleMask))
+}
+
+fun byte(hi: Nybble, lo: Nybble): Byte {
+    val hb = hi.value shl 4
+    return hb or lo.value
 }
 
 // ------------------------------------------------------------------------------
