@@ -9,6 +9,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+
+//TODO: Move into separate project and link to that project/artifact.
+
 package org.mark_naylor_1701.CollectUtils
 
 fun <T> Collection<T>.empty(): Collection<T> {
