@@ -8,9 +8,14 @@ Data structures for machine codes and assembler mnemonics.
 /////////////////////////////////////////////////////////////////////////////
  */
 
-//TODO: Create value classes for opcodes and mnemonics.
+// TODO: Create value classes for opcodes and mnemonics.
+
+// TODO: Make the values private to hide implementation, only access
+// via the functions.
 
 package org.mark_naylor_1701.sham
+
+import org.mark_naylor_1701.CollectUtils.butLast
 
 object MachineCode {
     val oneByteCodes: List<String> = listOf(
@@ -50,12 +55,37 @@ object MachineCode {
         "testandset",
         "interrupt"
     )
-    val fourByteIndirectCodes: List<String> = fourByteCodes.map { "-" + it }
 
-    val allCodes: List<String>  = oneByteCodes + twoByteCodes + fourByteCodes + fourByteIndirectCodes
+    val opcodeDirectionDiff: Byte = 0x10.toByte()
 
-    val opcodesToMnemonic = allCodes.withIndex().map { it.index.toByte() to it.value }.toMap()
-    val mnemonicsToOpcode = allCodes.withIndex().map { it.value to it.index.toByte() }.toMap()
+    val fourByteIndirectCodes: List<String> =
+        fourByteCodes.butLast().map { directCode ->  "-" + directCode }
+
+    val partialCodeMap: Map<String, Byte> =
+        (oneByteCodes + twoByteCodes + fourByteCodes).withIndex().
+        map { codePair ->  codePair.value to codePair.index.toByte() }.
+        toMap()
+
+    val indirectCodeMap: Map<String, Byte> = fourByteIndirectCodes.map { indirectName ->
+        val indirectCode: Byte =
+            indirectName.substring(1).let { directName ->
+                partialCodeMap[directName]?.let { directCode ->
+                    (directCode + opcodeDirectionDiff).toByte()
+            }
+        } ?: Byte.MAX_VALUE
+
+        indirectName to indirectCode
+    }.filter { it.second != Byte.MAX_VALUE }.toMap()
+
+    val mnemonicsToOpcode = partialCodeMap + indirectCodeMap
+    val opcodesToMnemonic = mnemonicsToOpcode.map { it.value to it.key}.toMap()
+
+    fun opcode(mnemonic: String):Byte? = mnemonicsToOpcode[mnemonic]
+
+    fun mnemonic(opcode: Byte):String? = opcodesToMnemonic[opcode]
+
+    fun isIndirect(code: Byte) = opcode(fourByteCodes.last())?.let { code > it } ?: false
+
 }
 
 // ------------------------------------------------------------------------------
