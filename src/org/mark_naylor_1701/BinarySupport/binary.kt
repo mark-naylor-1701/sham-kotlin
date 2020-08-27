@@ -6,7 +6,7 @@
 // Kotlin doen't support bit operations on Bytes. This module bridges the gap. //
 /////////////////////////////////////////////////////////////////////////////////
 
-package org.mark_naylor_1701.binarysupport
+package org.mark_naylor_1701.BinarySupport
 
 data class Nybble(val value: Byte)
 
