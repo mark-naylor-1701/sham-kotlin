@@ -3,43 +3,89 @@
 // date:  2020-Aug-23
 
 /////////////////////////////////////////////////////////////////////////////////
-// Kotlin doen't support bit operations on Bytes. This module bridges the gap. //
+// Kotlin doen't support bit operations on Bytes or Shorts. This
+// module bridges the gap.
 /////////////////////////////////////////////////////////////////////////////////
 
 package org.mark_naylor_1701.BinarySupport
 
-data class Nybble(val value: Byte)
+// Private constructor w/ companion object factory. Ensures the value
+// is in the range 0x0 to 0xF.
+data class Nybble private constructor(val value: Byte) {
+    companion object {
+        fun ctor(value: Byte) = Nybble((value and loNybbleMask.toByte()))
+    }
+}
+
+typealias NybblePair = Pair<Nybble, Nybble>
+typealias BytePair = Pair<Byte, Byte>
+typealias ShortPair = Pair<Short, Short>
 
 private val hiNybbleMask = 0xF0.toByte()
 private val loNybbleMask = 0x0F.toByte()
+private val hiByteMask = 0xFF00.toShort()
+private val loByteMask = 0x00FF.toShort()
 
+//TODO:
+// * Add halving and constructor functions for the Int and Long data types.
+// * Move the module into a separate project.
+// ** Symlink to the now location.
+//          - or -
+// ** Create and include as Maven artifact.
+
+// Byte functions
 infix fun Byte.and(that: Byte): Byte {
-    return (this.toInt() and that.toInt()).toByte()
+    return (toInt() and that.toInt()).toByte()
 }
 
 infix fun Byte.or(that: Byte): Byte {
-    return (this.toInt() or that.toInt()).toByte()
-}
-
-infix fun Byte.shr(bitCount: Int): Byte {
-    return (this.toInt() shr bitCount).toByte()
+    return (toInt() or that.toInt()).toByte()
 }
 
 infix fun Byte.shl(bitCount: Int): Byte {
-    return (this.toInt() shl bitCount).toByte()
+    return (toInt() shl bitCount).toByte()
 }
 
-fun hiNybble(b: Byte): Nybble {
-    return Nybble((b and hiNybbleMask) shr 4)
+infix fun Byte.shr(bitCount: Int): Byte {
+    return (toInt() shr bitCount).toByte()
 }
 
-fun loNybble(b: Byte): Nybble {
-    return Nybble((b and loNybbleMask))
+fun halves(b: Byte): NybblePair {
+    val hi = (b and hiNybbleMask) shr 4
+    val lo = b and loNybbleMask
+    return Nybble.factory(hi) to Nybble.factory(lo)
 }
 
 fun byte(hi: Nybble, lo: Nybble): Byte {
-    val hb = hi.value shl 4
-    return hb or lo.value
+    return ((hi.value shl 4) or lo.value).toByte()
+}
+
+// Short functions.
+
+infix fun Short.and(that: Short): Short {
+    return (toInt() and that.toInt()).toShort()
+}
+
+infix fun Short.or(that: Short): Short {
+    return (toInt() or that.toInt()).toShort()
+}
+
+infix fun Short.shl(bitCount: Int): Short {
+    return (toInt() shl bitCount).toShort()
+}
+
+infix fun Short.shr(bitCount: Int): Short {
+    return (toInt() shr bitCount).toShort()
+}
+
+fun short(hi: Byte, lo: Byte): Short {
+    return ((hi shl 8) or lo).toShort()
+}
+
+fun halves(s: Short): BytePair {
+    val hi = ((s and hiByteMask) shr 8).toByte()
+    val lo = (s and loByteMask).toByte()
+    return hi to lo
 }
 
 // ------------------------------------------------------------------------------
