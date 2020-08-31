@@ -15,10 +15,11 @@ Data structures for machine codes and assembler mnemonics.
 
 package org.mark_naylor_1701.sham
 
+import org.mark_naylor_1701.sham.Types.*
 import org.mark_naylor_1701.CollectUtils.butLast
 
 object MachineCode {
-    val oneByteCodes: List<String> = listOf(
+    val oneByteCodes: List<Mnemonic> = listOf(
         "nop",
         "random",
         "return",
@@ -27,8 +28,9 @@ object MachineCode {
         "trace_off",
         "enable",
         "disable"
-    )
-    val twoByteCodes: List<String> = listOf(
+    ).map { code -> Mnemonic(code) }
+
+    val twoByteCodes: List<Mnemonic> = listOf(
         "negate",
         "increment",
         "decrement",
@@ -41,8 +43,9 @@ object MachineCode {
         "multiply",
         "divide",
         "compare"
-    )
-    val fourByteCodes: List<String> = listOf(
+    ).map { code -> Mnemonic(code)}
+
+    val fourByteCodes: List<Mnemonic> = listOf(
         "in",
         "out",
         "branch",
@@ -54,37 +57,38 @@ object MachineCode {
         "stream",
         "testandset",
         "interrupt"
-    )
+    ).map { code -> Mnemonic(code) }
 
-    val opcodeDirectionDiff: Byte = 0x10.toByte()
+    val opcodeDirectionDiff: OpCode = OpCode(0x10.toByte())
+    val invalidCode: OpCode = OpCode(Byte.MAX_VALUE)
 
-    val fourByteIndirectCodes: List<String> =
-        fourByteCodes.butLast().map { directCode ->  "-" + directCode }
+    val fourByteIndirectCodes: List<Mnemonic> =
+        fourByteCodes.butLast().map { directCode ->  Mnemonic("-" + directCode.value) }
 
-    val partialCodeMap: Map<String, Byte> =
+    val partialCodeMap: Map<Mnemonic, OpCode> =
         (oneByteCodes + twoByteCodes + fourByteCodes).withIndex().
-        map { codePair ->  codePair.value to codePair.index.toByte() }.
+        map { codePair ->  codePair.value to OpCode(codePair.index.toByte()) }.
         toMap()
 
-    val indirectCodeMap: Map<String, Byte> = fourByteIndirectCodes.map { indirectName ->
-        val indirectCode: Byte =
-            indirectName.substring(1).let { directName ->
-                partialCodeMap[directName]?.let { directCode ->
-                    (directCode + opcodeDirectionDiff).toByte()
+    val indirectCodeMap: Map<Mnemonic, OpCode> = fourByteIndirectCodes.map { indirectName ->
+        val indirectCode: OpCode =
+            indirectName.value.substring(1).let { directName ->
+                partialCodeMap[Mnemonic(directName)]?.let { directCode ->
+                    OpCode((directCode.value + opcodeDirectionDiff.value).toByte())
             }
-        } ?: Byte.MAX_VALUE
+        } ?: invalidCode
 
         indirectName to indirectCode
-    }.filter { it.second != Byte.MAX_VALUE }.toMap()
+    }.filter { it.second != invalidCode }.toMap()
 
     val mnemonicsToOpcode = partialCodeMap + indirectCodeMap
     val opcodesToMnemonic = mnemonicsToOpcode.map { it.value to it.key}.toMap()
 
-    fun opcode(mnemonic: String):Byte? = mnemonicsToOpcode[mnemonic]
+    fun opcode(mnemonic: Mnemonic):OpCode? = mnemonicsToOpcode[mnemonic]
 
-    fun mnemonic(opcode: Byte):String? = opcodesToMnemonic[opcode]
+    fun mnemonic(opcode: OpCode):Mnemonic? = opcodesToMnemonic[opcode]
 
-    fun isIndirect(code: Byte) = opcode(fourByteCodes.last())?.let { code > it } ?: false
+    fun isIndirect(code: OpCode) = opcode(fourByteCodes.last())?.let { code.value > it.value } ?: false
 
 }
 
