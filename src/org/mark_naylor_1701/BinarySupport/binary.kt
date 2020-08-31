@@ -53,7 +53,7 @@ infix fun Byte.shr(bitCount: Int): Byte {
 fun halves(b: Byte): NybblePair {
     val hi = (b and hiNybbleMask) shr 4
     val lo = b and loNybbleMask
-    return Nybble.factory(hi) to Nybble.factory(lo)
+    return Nybble.ctor(hi) to Nybble.ctor(lo)
 }
 
 fun byte(hi: Nybble, lo: Nybble): Byte {
