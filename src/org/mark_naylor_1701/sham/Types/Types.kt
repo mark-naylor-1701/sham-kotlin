@@ -10,7 +10,21 @@ package org.mark_naylor_1701.sham.Types
 
 import org.mark_naylor_1701.BinarySupport.*
 
-data class ShamNybble(val value: Nybble)
+data class ShamNybble private constructor (val value: Byte) {
+    companion object {
+        fun ctor(value: Byte): ShamNybble {
+            val n = Nybble.ctor(value)
+
+            return ShamNybble(n.value)
+        }
+
+        fun ctor(value: Number): ShamNybble {
+            val n = Nybble.ctor(value.toByte())
+
+            return ShamNybble(n.value)
+        }
+    }
+}
 
 data class ShamByte(val value: Byte)
 
@@ -42,7 +56,7 @@ infix fun ShamByte.shr(bitCount: Int): ShamByte {
 fun halves(sb: ShamByte): ShamNybblePair {
     val (hi, lo) = halves(sb.value)
 
-    return ShamNybble(hi) to ShamNybble(lo)
+    return ShamNybble.ctor(hi.value) to ShamNybble.ctor(lo.value)
 }
 
 fun halves(sw: ShamWord): ShamBytePair {
@@ -52,8 +66,8 @@ fun halves(sw: ShamWord): ShamBytePair {
 }
 
 fun shamByte(hi: ShamNybble, lo: ShamNybble): ShamByte {
-    val hiNybble = hi.value.value shl 4
-    val loNybble = lo.value.value
+    val hiNybble = hi.value shl 4
+    val loNybble = lo.value
     val byte = hiNybble or loNybble
 
     return ShamByte(byte)
