@@ -13,7 +13,7 @@ package org.mark_naylor_1701.BinarySupport
 // is in the range 0x0 to 0xF.
 data class Nybble private constructor(val value: Byte) {
     companion object {
-        fun ctor(value: Byte) = Nybble((value and loNybbleMask.toByte()))
+        fun newNybble(value: Byte) = Nybble((value and loNybbleMask.toByte()))
     }
 }
 
@@ -53,7 +53,7 @@ infix fun Byte.shr(bitCount: Int): Byte {
 fun halves(b: Byte): NybblePair {
     val hi = (b and hiNybbleMask) shr 4
     val lo = b and loNybbleMask
-    return Nybble.ctor(hi) to Nybble.ctor(lo)
+    return Nybble.newNybble(hi) to Nybble.newNybble(lo)
 }
 
 fun byte(hi: Nybble, lo: Nybble): Byte {

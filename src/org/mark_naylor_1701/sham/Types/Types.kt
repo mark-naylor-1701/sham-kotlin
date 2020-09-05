@@ -12,14 +12,14 @@ import org.mark_naylor_1701.BinarySupport.*
 
 data class ShamNybble private constructor (val value: Byte) {
     companion object {
-        fun ctor(value: Byte): ShamNybble {
-            val n = Nybble.ctor(value)
+        fun newShamNybble(value: Byte): ShamNybble {
+            val n = Nybble.newNybble(value)
 
             return ShamNybble(n.value)
         }
 
-        fun ctor(value: Number): ShamNybble {
-            val n = Nybble.ctor(value.toByte())
+        fun newShamNybble(value: Number): ShamNybble {
+            val n = Nybble.newNybble(value.toByte())
 
             return ShamNybble(n.value)
         }
@@ -56,7 +56,7 @@ infix fun ShamByte.shr(bitCount: Int): ShamByte {
 fun halves(sb: ShamByte): ShamNybblePair {
     val (hi, lo) = halves(sb.value)
 
-    return ShamNybble.ctor(hi.value) to ShamNybble.ctor(lo.value)
+    return ShamNybble.newShamNybble(hi.value) to ShamNybble.newShamNybble(lo.value)
 }
 
 fun halves(sw: ShamWord): ShamBytePair {

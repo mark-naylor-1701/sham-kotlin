@@ -9,7 +9,7 @@ import org.mark_naylor_1701.sham.Types.*
 
 data class RegisterName private constructor(val value: String) {
     companion object {
-        fun ctor(name: String): RegisterName {
+        fun newRegisterName(name: String): RegisterName {
             val fixedName: String = name.toLowerCase()
             return when (fixedName) {
                 in legalRegisterNames -> RegisterName(fixedName)
@@ -21,12 +21,12 @@ data class RegisterName private constructor(val value: String) {
 
 data class RegisterCode private constructor (val value: Byte) {
     companion object {
-        fun ctor(sb: ShamByte): RegisterCode = when (sb.value) {
+        fun newRegisterCode(sb: ShamByte): RegisterCode = when (sb.value) {
             in (0 until legalRegisterNames.size) -> RegisterCode(sb.value)
             else -> throw RegisterCodeException("$sb.value outside legal register code fun.")
         }
 
-        fun ctor(n: Number): RegisterCode = when (n) {
+        fun newRegisterCode(n: Number): RegisterCode = when (n) {
             in (0 until legalRegisterNames.size) -> RegisterCode(n.toByte())
             else -> throw RegisterCodeException("$n.value outside legal register code fun.")
         }
@@ -45,7 +45,7 @@ private val legalRegisterNames: List<String> = listOf (
 
 private val nameCode : Map<RegisterName, RegisterCode> =
     legalRegisterNames.withIndex().map {
-        RegisterName.ctor(it.value) to RegisterCode.ctor(ShamByte(it.index.toByte()))
+        RegisterName.newRegisterName(it.value) to RegisterCode.newRegisterCode(ShamByte(it.index.toByte()))
     }.toMap()
 
 
@@ -59,7 +59,7 @@ fun registerCode(name: RegisterName): RegisterCode? = nameCode[name]
 
 data class BranchName private constructor (val value: String) {
     companion object {
-        fun ctor(name: String): BranchName {
+        fun newBranchName(name: String): BranchName {
             val fixedName = name.toLowerCase()
             return when (fixedName) {
                 in legalBranchNames -> BranchName(fixedName)
@@ -71,12 +71,12 @@ data class BranchName private constructor (val value: String) {
 
 data class BranchCode private constructor (val value: Byte) {
     companion object {
-        fun ctor(sb: ShamNybble): BranchCode {
+        fun newBranchCode(sb: ShamNybble): BranchCode {
             return BranchCode(sb.value)
         }
 
-        fun ctor(n: Number): BranchCode {
-            return BranchCode(ShamNybble.ctor(n).value)
+        fun newBranchCode(n: Number): BranchCode {
+            return BranchCode(ShamNybble.newShamNybble(n).value)
         }
     }
 }
@@ -85,7 +85,7 @@ private val legalBranchNames = listOf("low", "equal", "high", "key")
 
 private val branchNameCode: Map<BranchName, BranchCode> =
     legalBranchNames.withIndex().
-    map { BranchName.ctor(it.value) to BranchCode.ctor(it.index)}.toMap()
+    map { BranchName.newBranchName(it.value) to BranchCode.newBranchCode(it.index)}.toMap()
 
 private val branchCodeName: Map<BranchCode, BranchName> =
     branchNameCode.map { it.value to it.key }.toMap()
