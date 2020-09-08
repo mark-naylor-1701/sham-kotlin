@@ -33,6 +33,7 @@ data class RegisterCode private constructor (val value: Byte) {
     }
 }
 
+typealias Registers = Map<RegisterCode, ShamWord>
 
 
 class RegisterNameException(msg: String): Exception(msg)
@@ -45,7 +46,8 @@ private val legalRegisterNames: List<String> = listOf (
 
 private val nameCode : Map<RegisterName, RegisterCode> =
     legalRegisterNames.withIndex().map {
-        RegisterName.newRegisterName(it.value) to RegisterCode.newRegisterCode(ShamByte(it.index.toByte()))
+        RegisterName.newRegisterName(it.value) to
+            RegisterCode.newRegisterCode(ShamByte(it.index.toByte()))
     }.toMap()
 
 
@@ -67,6 +69,10 @@ data class BranchName private constructor (val value: String) {
             }
         }
     }
+}
+
+fun registers(): Registers {
+    return codeName.keys.map { it to ShamWord(0)}.toMap()
 }
 
 data class BranchCode private constructor (val value: Byte) {
@@ -91,7 +97,10 @@ private val branchCodeName: Map<BranchCode, BranchName> =
     branchNameCode.map { it.value to it.key }.toMap()
 
 fun branchCode(name: BranchName): BranchCode? = branchNameCode[name]
-fun barnchName(code: BranchCode): BranchName? = branchCodeName[code]
+fun branchName(code: BranchCode): BranchName? = branchCodeName[code]
+
+
+
 
 // ------------------------------------------------------------------------------
 // BSD 3-Clause License
