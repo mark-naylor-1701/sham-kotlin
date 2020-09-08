@@ -46,7 +46,9 @@ data class ShamByte(val value: Byte) {
 }
 
 data class ShamWord(val value: Short) {
-    private val one = ShamWord(1)
+    private val one by lazy {
+        ShamWord(1)
+    }
 
     operator fun plus(that: ShamWord): ShamWord {
         val word = value + that.value
