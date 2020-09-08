@@ -26,32 +26,65 @@ data class ShamNybble private constructor (val value: Byte) {
     }
 }
 
-data class ShamByte(val value: Byte)
+data class ShamByte(val value: Byte) {
 
-data class ShamWord(val value: Short)
+    infix fun and(that: ShamByte): ShamByte {
+        return ShamByte((value and that.value).toByte())
+    }
+
+    infix fun or(that: ShamByte): ShamByte {
+        return ShamByte((value or that.value).toByte())
+    }
+
+    infix fun shl(bitCount: Int): ShamByte {
+        return ShamByte((value shl bitCount).toByte())
+    }
+
+    infix fun shr(bitCount: Int): ShamByte {
+        return ShamByte((value shr bitCount).toByte())
+    }
+}
+
+data class ShamWord(val value: Short) {
+    private val one = ShamWord(1)
+
+    operator fun plus(that: ShamWord): ShamWord {
+        val word = value + that.value
+
+        return ShamWord(word.toShort())
+    }
+
+
+    operator fun minus(that: ShamWord): ShamWord {
+        val word = value - that.value
+
+        return ShamWord(word.toShort())
+    }
+
+
+    operator fun times(that: ShamWord): ShamWord {
+        val word = value * that.value
+
+        return ShamWord(word.toShort())
+    }
+
+
+    operator fun div(that: ShamWord): ShamWord {
+        val word = value / that.value
+
+        return ShamWord(word.toShort())
+    }
+
+    fun inc(): ShamWord = this + one
+
+    fun dec(): ShamWord = this - one
+}
 
 data class OpCode(val value: Byte)
-
 data class Mnemonic(val value: String)
 
 typealias ShamNybblePair = Pair<ShamNybble, ShamNybble>
 typealias ShamBytePair = Pair<ShamByte, ShamByte>
-
-infix fun ShamByte.and(that: ShamByte): ShamByte {
-    return ShamByte((value and that.value).toByte())
-}
-
-infix fun ShamByte.or(that: ShamByte): ShamByte {
-    return ShamByte((value or that.value).toByte())
-}
-
-infix fun ShamByte.shl(bitCount: Int): ShamByte {
-    return ShamByte((value shl bitCount).toByte())
-}
-
-infix fun ShamByte.shr(bitCount: Int): ShamByte {
-    return ShamByte((value shr bitCount).toByte())
-}
 
 fun halves(sb: ShamByte): ShamNybblePair {
     val (hi, lo) = halves(sb.value)
@@ -80,34 +113,6 @@ fun shamWord(hi: ShamByte, lo: ShamByte): ShamWord {
     val word = hiWord or loWord
 
     return ShamWord(word)
-}
-
-
-operator fun ShamWord.plus(that: ShamWord): ShamWord {
-    val word = value + that.value
-
-    return ShamWord(word.toShort())
-}
-
-
-operator fun ShamWord.minus(that: ShamWord): ShamWord {
-    val word = value - that.value
-
-    return ShamWord(word.toShort())
-}
-
-
-operator fun ShamWord.times(that: ShamWord): ShamWord {
-    val word = value * that.value
-
-    return ShamWord(word.toShort())
-}
-
-
-operator fun ShamWord.div(that: ShamWord): ShamWord {
-    val word = value / that.value
-
-    return ShamWord(word.toShort())
 }
 
 // ------------------------------------------------------------------------------
