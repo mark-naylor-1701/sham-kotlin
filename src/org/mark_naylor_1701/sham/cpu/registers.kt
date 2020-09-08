@@ -71,7 +71,7 @@ data class BranchName private constructor (val value: String) {
     }
 }
 
-fun registers(): Registers {
+fun newRegisters(): Registers {
     return codeName.keys.map { it to ShamWord(0)}.toMap()
 }
 
