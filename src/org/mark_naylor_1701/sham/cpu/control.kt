@@ -10,11 +10,14 @@ package org.mark_naylor_1701.sham.cpu
 import org.mark_naylor_1701.sham.Types.*
 
 data class Control(val command: OpCode = OpCode(0),
-                   val enabled: Boolean = false,
-                   val limit: ShamWord = ShamWord(0)) {
+                   val isInterrupted: Boolean = false,
+                   val limit: ShamWord = ShamWord(0),
+                   val isTraced: Boolean = false) {
     fun next(next: OpCode) = copy(command=next)
-    fun enable(clockValue: ShamWord) = copy(enabled=true, limit=clockValue)
-    fun disable() = copy(enabled=false, limit=ShamWord(0))
+    fun enable(clockValue: ShamWord) = copy(isInterrupted=true, limit=clockValue)
+    fun disable() = copy(isInterrupted=false, limit=ShamWord(0))
+    fun traceOn() = copy(isTraced=true)
+    fun traceOff() = copy(isTraced= false)
 }
 
 

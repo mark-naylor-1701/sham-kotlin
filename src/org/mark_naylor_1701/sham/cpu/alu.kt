@@ -13,45 +13,73 @@
 
 package org.mark_naylor_1701.sham.cpu
 
+import org.mark_naylor_1701.sham.Types.*
+
 // For now, just stubs that are Unit functions. ////////////////////////////////
 
 // One byte commands.
 
-fun nop() {
+typealias ShamPair = Pair<Control, Registers>
+typealias ShamTriple = Triple<Control, Registers, Memory>
+
+typealias OneByteCommand = (Control, Registers) -> ShamPair
+
+fun nop(control: Control, registers: Registers): ShamPair {
     // Does nothing. A somtimes useful operation, although at first glance it
     // seems useless to do nothing.
-    println("nop")
+
+    return Pair(control, registers)
 }
 
-fun random() {
+private val axCode by lazy {
+    registerCode(RegisterName.newRegisterName("ax"))!!
+}
+
+fun random(control: Control, registers: Registers): ShamPair {
     // Places a pseudo-random non-negative integer between 0 and (2^15 -1),
     // inclusive, into register AX.
-    println("random")
+
+    val random = ((Short.MAX_VALUE + 1) * Math.random()).toShort()
+    val register: Pair<RegisterCode, ShamWord> = Pair(axCode, ShamWord(random))
+
+    return Pair(control, registers + register)
 }
 
 // Function differs from opcode, because "return" is a Kotlin reserved word.
-fun sham_return() {
+fun `return`() {
     // Restore the IP, the DR, and the FR registers — casuing the next command
     // after a previous CALL or INTERRUPT to be executed.
     println("return")
 }
 
-fun terminate() {
-    // Exits the program and turns off SHAM. Will display a message \"program
-    // exited at relative location…\"
-    println("terminate")
+
+class TerminateException(msg: String): Exception(msg)
+private val ipCode by lazy {
+    registerCode(RegisterName.newRegisterName("ip"))!!
 }
 
-fun trace_on() {
+fun terminate(control: Control, registers: Registers): ShamPair {
+    // Exits the program and turns off SHAM. Will display a message \"program
+    // exited at relative location…\"
+
+    val ip = registers[ipCode]!!
+    val msg = "program exited at ${ip.value}"
+
+    println(msg)
+
+    throw TerminateException(msg)
+}
+
+fun traceOn() {
     // Starts the trace operation (a hardware funtion in SHAM) that will display
     // the command next fetched and will also display the contents of all
     // registers before the fetched commond is executed.
-    println("trace_on")
+    println("traceOn")
 }
 
-fun trace_off() {
+fun traceOff() {
     // Terminates tracing.
-    println("trace_off")
+    println("traceOff")
 }
 
 fun enable() {
@@ -68,14 +96,14 @@ fun disable() {
     println("disable")
 }
 
-// Two byte commands
-// (using only reg1 or reg1,value)
-
 fun negate() {
     // Will reverse the sign of the contents of register 1. It is the same as
     // multiplying by minus one.
     println("negate")
 }
+
+// Two byte commands
+// (using only reg1 or reg1,value)
 
 fun increment() {
     // Will add value to the contents of register 1.
@@ -144,7 +172,7 @@ fun compare() {
 // Four byte
 // (These, and only these, commands may be designated as indirect.)
 
-fun sham_in(direct: Boolean = true) {
+fun `in`(direct: Boolean = true) {
     // This command will use the value of the r1 part to determine it action:
 
     // If r1 part = 1 then a keybourd value is read into memory. The next
@@ -170,7 +198,7 @@ fun sham_in(direct: Boolean = true) {
     println("in")
 }
 
-fun sham_out(direct: Boolean = true) {
+fun out(direct: Boolean = true) {
     // Ths command will use the value of the r2 part to determine its action:
 
     // If the r1 part = 0 then a single caracter is outputtedfrom the memory
@@ -214,32 +242,32 @@ fun call(direct: Boolean = true) {
     println("call")
 }
 
-fun fetch_byte(direct: Boolean = true) {
+fun fetchByte(direct: Boolean = true) {
     // Will replace the contents of register 1 yb the byte stored at the memory
     // given by the data address. The leftmost 8 bits will be zero.
 
-    println("fetch_byte")
+    println("fetchByte")
 }
 
-fun fetch_word(direct: Boolean = true) {
+fun fetchWord(direct: Boolean = true) {
     // Wil replace the contents of register 1 by the word stored at the memroy
     // given by the data address.
 
-    println("fetch_word")
+    println("fetchWord")
 }
 
-fun store_byte(direct: Boolean = true) {
+fun storeByte(direct: Boolean = true) {
     // Will copy into the memory location given by the data address the
     // rightmost 8 bits of register 1.
 
-    println("store_byte")
+    println("storeByte")
 }
 
-fun store_word(direct: Boolean = true) {
+fun storeWord(dict: Boolean = true) {
     // Will copy the full contets of register 1 into the word lacation in memory
     // specified by the data address.
 
-    println("store_word")
+    println("storeWord")
 }
 
 fun stream(direct: Boolean = true) {

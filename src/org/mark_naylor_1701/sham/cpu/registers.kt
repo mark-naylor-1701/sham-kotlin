@@ -72,7 +72,8 @@ data class BranchName private constructor (val value: String) {
 }
 
 fun newRegisters(): Registers {
-    return codeName.keys.map { it to ShamWord(0)}.toMap()
+    val zero = ShamWord(0)
+    return codeName.keys.map { it to zero }.toMap()
 }
 
 data class BranchCode private constructor (val value: Byte) {
