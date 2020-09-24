@@ -8,10 +8,7 @@ import org.mark_naylor_1701.sham.Types.*
 
 
 // Final memory size, reduced during development/testing.
-// private val memorySize = 32 * 1024
-
-// Temporary memory size, 64 bytes should be sufficient
-private val memorySize = 64
+private val memorySize = 32 * 1024
 
 typealias Memory = List<ShamByte>
 
@@ -21,10 +18,10 @@ fun Memory.take(index: ShamWord): Memory = take(index.value.toInt())
 
 fun Memory.drop(index: ShamWord): Memory = drop(index.value.toInt())
 
-fun newMemory(): Memory {
+fun newMemory(size: Int = memorySize): Memory {
     val zero = ShamByte(0)
 
-    return (1..memorySize).map { zero }
+    return (1..size).map { zero }
 }
 
 fun readByte(mem: Memory, address: ShamWord): ShamByte {

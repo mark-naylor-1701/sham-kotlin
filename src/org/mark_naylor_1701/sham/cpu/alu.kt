@@ -17,37 +17,56 @@ import org.mark_naylor_1701.sham.Types.*
 
 // For now, just stubs that are Unit functions. ////////////////////////////////
 
+typealias RegisterControl = Pair<Registers, Control>
+typealias RegisterMemory = Pair<Registers, Memory>
+
+typealias OneByteCommand = (Registers) -> Registers
+typealias OneByteCommandControl = (Registers, Control) -> RegisterControl
+typealias OneByteCommendMemory = (Registers, Memory) -> RegisterMemory
+
+// All two byte command require memory access to fetch register operand(s).
+typealias TwoByteCommand = (Registers, Memory) -> Registers
+typealias TweByteCommandMemory = (Registers, Memory) -> RegisterMemory
+
+//typealias FourByteCommand = (Control, Registers, Memory) -> ShamTriple
+typealias FourByteCommand = (Registers, Memory) -> Registers
+typealias FourByteCommandMemory = (Registers, Memory) -> RegisterMemory
+
+
+
 // One byte commands.
 
-typealias ShamPair = Pair<Control, Registers>
-typealias ShamTriple = Triple<Control, Registers, Memory>
-
-typealias OneByteCommand = (Control, Registers) -> ShamPair
-
-fun nop(control: Control, registers: Registers): ShamPair {
-    // Does nothing. A somtimes useful operation, although at first glance it
+fun nop(registers: Registers): Registers {
+    // Does nothing. A sometimes useful operation, although at first glance it
     // seems useless to do nothing.
 
-    return Pair(control, registers)
+    println("nop")
+
+    val newRegisters = advanceOne(registers)
+
+    return newRegisters
 }
 
 private val axCode by lazy {
     registerCode(RegisterName.newRegisterName("ax"))!!
 }
 
-fun random(control: Control, registers: Registers): ShamPair {
+fun random(registers: Registers): Registers {
     // Places a pseudo-random non-negative integer between 0 and (2^15 -1),
     // inclusive, into register AX.
 
+    println("random")
+
+    val newRegisters = advanceOne(registers)
     val random = ((Short.MAX_VALUE + 1) * Math.random()).toShort()
     val register: Pair<RegisterCode, ShamWord> = Pair(axCode, ShamWord(random))
 
-    return Pair(control, registers + register)
+    return newRegisters + register
 }
 
 // Function differs from opcode, because "return" is a Kotlin reserved word.
 fun `return`() {
-    // Restore the IP, the DR, and the FR registers — casuing the next command
+    // Restore the IP, the DR, and the FR registers — causing the next command
     // after a previous CALL or INTERRUPT to be executed.
     println("return")
 }
@@ -58,33 +77,47 @@ private val ipCode by lazy {
     registerCode(RegisterName.newRegisterName("ip"))!!
 }
 
-fun terminate(control: Control, registers: Registers): ShamPair {
+fun terminate(registers: Registers, control: Control): RegisterControl {
     // Exits the program and turns off SHAM. Will display a message \"program
     // exited at relative location…\"
 
+    println("terminate")
+
     val ip = registers[ipCode]!!
     val msg = "program exited at ${ip.value}"
+    val newControl = control.copy(isRunning = false)
 
     println(msg)
 
-    throw TerminateException(msg)
+    //throw TerminateException(msg)
+    return registers to newControl
 }
 
-fun traceOn() {
-    // Starts the trace operation (a hardware funtion in SHAM) that will display
+fun traceOn(registers: Registers, control: Control): RegisterControl {
+    // Starts the trace operation (a hardware function in SHAM) that will display
     // the command next fetched and will also display the contents of all
-    // registers before the fetched commond is executed.
+    // registers before the fetched command is executed.
     println("traceOn")
+
+    val newControl = control.copy(isTraced = true)
+    val newRegisters = advanceOne(registers)
+
+    return newRegisters to newControl
 }
 
-fun traceOff() {
+fun traceOff(registers: Registers, control: Control): RegisterControl {
     // Terminates tracing.
     println("traceOff")
+
+    val newControl = control.copy(isTraced = false)
+    val newRegisters = advanceOne(registers)
+
+    return newRegisters to newControl
 }
 
 fun enable() {
     // Permits the clock to increment and to allow testing of its value against
-    // the word in location zero; when equal an inerrupt will occur to location
+    // the word in location zero; when equal an interrupt will occur to location
     // 12.
     println("enable")
 }
@@ -96,14 +129,20 @@ fun disable() {
     println("disable")
 }
 
-fun negate() {
+// Two byte commands
+// (using only reg1 or reg1,value)
+
+fun negate(registers: Registers): Registers {
     // Will reverse the sign of the contents of register 1. It is the same as
     // multiplying by minus one.
     println("negate")
-}
 
-// Two byte commands
-// (using only reg1 or reg1,value)
+    val oldAx = registers[axCode]!!
+    val newAx = oldAx * ShamWord(-1)
+    val newRegisters = advanceOne(registers) + Pair(axCode, newAx)
+
+    return newRegisters
+}
 
 fun increment() {
     // Will add value to the contents of register 1.
@@ -117,14 +156,14 @@ fun decrement() {
 
 fun push() {
     // Will push the contents of register 1 onto the current stack. The contest
-    // of the SP register is decremented twice and the contets of registe1 is
-    // stored at location (SR) + (SP), The contets of register are unchanged.
+    // of the SP register is decremented twice and the contents of register 1 is
+    // stored at location (SR) + (SP), The contents of register are unchanged.
     println("push")
 }
 
 fun pop() {
     // Will pop the current stack into register 1. The contents of word location
-    // (SR) + (SP) is placed in register 1 and hte contents of SP is incremeted
+    // (SR) + (SP) is placed in register 1 and hte contents of SP is incremented
     // twice.
     println("pop")
 }
@@ -132,7 +171,7 @@ fun pop() {
 // (Using both reg1 and reg2)
 
 fun move() {
-    // Will copy the contets of register into register. The value in both
+    // Will copy the contents of register into register. The value in both
     // registers are now the same. There is no memory MOVE.
     println("move")
 }
@@ -302,9 +341,38 @@ fun interrupt(direct: Boolean = true) {
     // Will cause the contens of FR, DR, and IP to be pushed onto the current
     // stack and the new IP and DR to be fetched from the word locatons
     // specified by the data address (for the IP) and at that of location + 2
-    // (for the DR). FR is ste to zero. The data ddress must be absolute.
+    // (for the DR). FR is set to zero. The data ddress must be absolute.
 
     println("interrupt")
+}
+
+
+private val one = ShamWord(1)
+private val two = ShamWord(2)
+private val four = ShamWord(4)
+
+private fun advanceOne(registers: Registers): Registers {
+    val currentIp = registers[ipCode]!!
+    val nextIp = currentIp + one
+    val newRegisters = registers + (ipCode to nextIp)
+
+    return newRegisters
+}
+
+private fun advanceTwo(registers: Registers): Registers {
+    val currentIp = registers[ipCode]!!
+    val nextIp = currentIp + two
+    val newRegisters = registers + (ipCode to nextIp)
+
+    return newRegisters
+}
+
+private fun advanceFour(registers: Registers): Registers {
+    val currentIp = registers[ipCode]!!
+    val nextIp = currentIp + four
+    val newRegisters = registers + (ipCode to nextIp)
+
+    return newRegisters
 }
 
 // ------------------------------------------------------------------------------

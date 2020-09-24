@@ -88,7 +88,8 @@ object MachineCode {
 
     fun mnemonic(opcode: OpCode):Mnemonic? = opcodesToMnemonic[opcode]
 
-    fun isIndirect(code: OpCode) = opcode(fourByteCodes.last())?.let { code.value > it.value } ?: false
+    fun isIndirect(code: OpCode) =
+        opcode(fourByteCodes.last())?.let { code.value > it.value } ?: false
 
 }
 

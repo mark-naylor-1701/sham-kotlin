@@ -12,7 +12,8 @@ import org.mark_naylor_1701.sham.Types.*
 data class Control(val command: OpCode = OpCode(0),
                    val isInterrupted: Boolean = false,
                    val limit: ShamWord = ShamWord(0),
-                   val isTraced: Boolean = false) {
+                   val isTraced: Boolean = false,
+                   val isRunning: Boolean = true) {
     fun next(next: OpCode) = copy(command=next)
     fun enable(clockValue: ShamWord) = copy(isInterrupted=true, limit=clockValue)
     fun disable() = copy(isInterrupted=false, limit=ShamWord(0))
