@@ -44,15 +44,16 @@ private val legalRegisterNames: List<String> = listOf (
     "nx", "ax", "bx", "cx", "dx", "ex", "fx", "dr", "ip", "sr", "sp", "fr"
 )
 
+
 private val nameCode : Map<RegisterName, RegisterCode> =
-    legalRegisterNames.withIndex().map {
+    legalRegisterNames.withIndex().associate {
         RegisterName.newRegisterName(it.value) to
             RegisterCode.newRegisterCode(ShamByte(it.index.toByte()))
-    }.toMap()
+    }
 
 
 private val codeName: Map<RegisterCode, RegisterName> =
-    nameCode.map { it.value to it.key }.toMap()
+    nameCode.asSequence().associate {  it.value to it.key }
 
 fun registerName(code: RegisterCode): RegisterName? = codeName[code]
 
@@ -73,7 +74,7 @@ data class BranchName private constructor (val value: String) {
 
 fun newRegisters(): Registers {
     val zero = ShamWord(0)
-    return codeName.keys.map { it to zero }.toMap()
+    return codeName.keys.associate { it to zero }
 }
 
 data class BranchCode private constructor (val value: Byte) {

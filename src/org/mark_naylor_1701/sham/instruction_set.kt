@@ -66,9 +66,8 @@ object MachineCode {
         fourByteCodes.butLast().map { directCode ->  Mnemonic("-" + directCode.value) }
 
     val partialCodeMap: Map<Mnemonic, OpCode> =
-        (oneByteCodes + twoByteCodes + fourByteCodes).withIndex().
-        map { codePair ->  codePair.value to OpCode(codePair.index.toByte()) }.
-        toMap()
+        (oneByteCodes + twoByteCodes + fourByteCodes).withIndex()
+        .associate { codePair ->  codePair.value to OpCode(codePair.index.toByte()) }
 
     val indirectCodeMap: Map<Mnemonic, OpCode> = fourByteIndirectCodes.map { indirectName ->
         val indirectCode: OpCode =
