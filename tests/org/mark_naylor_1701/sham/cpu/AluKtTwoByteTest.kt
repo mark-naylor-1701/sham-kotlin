@@ -25,7 +25,7 @@ internal class AluKtTwoByteTest {
 
         val newRegisters = negate(registers)
 
-        assert(newRegisters[ipCode] == one) { "IP not advanced correctly." }
+        assert(newRegisters[ipCode] == shamOne) { "IP not advanced correctly." }
         assert(newRegisters[axCode] == ShamWord(-8)) { "Not negated." }
     }
 

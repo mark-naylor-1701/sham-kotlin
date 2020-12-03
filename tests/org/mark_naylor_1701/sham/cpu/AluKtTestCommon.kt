@@ -3,8 +3,8 @@ package org.mark_naylor_1701.sham.cpu
 import org.mark_naylor_1701.sham.Types.ShamWord
 
 
-val one by lazy { ShamWord(1) }
-val zero by lazy { ShamWord(0) }
+val shamOne by lazy { ShamWord(1) }
+val shamZero by lazy { ShamWord(0) }
 val ipName = RegisterName.newRegisterName("ip")
 val ipCode = registerCode(ipName)!!
 val axName = RegisterName.newRegisterName("ax")

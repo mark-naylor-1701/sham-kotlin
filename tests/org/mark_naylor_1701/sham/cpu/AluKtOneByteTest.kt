@@ -18,7 +18,7 @@ internal class AluKtOneByteTest {
     fun nop() {
         val newRegisters = nop(registers)
 
-        assert(newRegisters[ipCode] == one) { "IP not advanced correctly." }
+        assert(newRegisters[ipCode] == shamOne) { "IP not advanced correctly." }
     }
 
     @Test
@@ -27,7 +27,7 @@ internal class AluKtOneByteTest {
 
         var newRegisters = random(registers)
 
-        assert(newRegisters[ipCode] == one) { "IP not advanced correctly." }
+        assert(newRegisters[ipCode] == shamOne) { "IP not advanced correctly." }
         assert(newRegisters[axCode]!!.value >= 0)
     }
 
@@ -37,13 +37,13 @@ internal class AluKtOneByteTest {
         val currentSP: ShamWord = registers[spCode]!!
         val expectedSP = currentSP + ShamWord(6)
 
-        val twenty = ShamWord(20)
-        val eighty = ShamWord(80)
+        val shamTwenty = ShamWord(20)
+        val shamEighty = ShamWord(80)
 
         val virginMemory = newMemory(64)
-        val pushOneMemory = write(virginMemory, ShamWord(4), one)
-        val pushTwoMemory = write(pushOneMemory, ShamWord(2), eighty)
-        val pushThreeMemory = write(pushTwoMemory, zero, twenty)
+        val pushOneMemory = write(virginMemory, ShamWord(4), shamOne)
+        val pushTwoMemory = write(pushOneMemory, ShamWord(2), shamEighty)
+        val pushThreeMemory = write(pushTwoMemory, shamZero, shamTwenty)
 
         val (newRegisters, _) = `return`(registers, pushThreeMemory)
 
@@ -51,13 +51,13 @@ internal class AluKtOneByteTest {
         assert(newSP == expectedSP) { "SP error: $newSP should be $expectedSP"}
 
         val newIP: ShamWord = newRegisters[ipCode]!!
-        assert(newIP == twenty) { "IP error: $newIP should be $twenty" }
+        assert(newIP == shamTwenty) { "IP error: $newIP should be $shamTwenty" }
 
         val newDR: ShamWord = newRegisters[drCode]!!
-        assert(newDR == eighty) { "DR errro: $newDR should be $eighty" }
+        assert(newDR == shamEighty) { "DR errro: $newDR should be $shamEighty" }
 
         val newFR: ShamWord = newRegisters[frCode]!!
-        assert(newFR == one) { "FR error: $newFR should be $one" }
+        assert(newFR == shamOne) { "FR error: $newFR should be $shamOne" }
     }
 
 
@@ -73,7 +73,7 @@ internal class AluKtOneByteTest {
         val (newRegisters, newControl) = traceOn(registers, control)
 
         assert(newControl.isTraced) { "Tracing is off." }
-        assert(newRegisters[ipCode] == one) { "IP not advanced correctly." }
+        assert(newRegisters[ipCode] == shamOne) { "IP not advanced correctly." }
     }
 
     @Test
@@ -81,7 +81,7 @@ internal class AluKtOneByteTest {
         val (newRegisters, newControl) = traceOff(registers, control)
 
         assert(!newControl.isTraced) { "Tracing is on." }
-        assert(newRegisters[ipCode] == one) { "IP not advanced correctly." }
+        assert(newRegisters[ipCode] == shamOne) { "IP not advanced correctly." }
     }
 
     private fun notImplemented() = "Not Implemented."
@@ -91,7 +91,7 @@ internal class AluKtOneByteTest {
         val (newRegisters, newControl) = enable(registers, control)
 
         assert(newControl.isInterrupted) { "Not interrupt not enabled."}
-        assert(newRegisters[ipCode] == one) { "IP not advanced correctly." }
+        assert(newRegisters[ipCode] == shamOne) { "IP not advanced correctly." }
     }
 
     @Test
@@ -99,7 +99,7 @@ internal class AluKtOneByteTest {
         val (newRegisters, newControl) = enable(registers, control)
 
         assert(newControl.isInterrupted) { "Not interrupt not enabled."}
-        assert(newRegisters[ipCode] == one) { "IP not advanced correctly." }
+        assert(newRegisters[ipCode] == shamOne) { "IP not advanced correctly." }
     }
 
 }
