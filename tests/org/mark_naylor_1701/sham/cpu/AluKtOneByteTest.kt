@@ -6,16 +6,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.mark_naylor_1701.sham.Types.ShamWord
 
-internal class AluKtTest {
-
-    private val one by lazy { ShamWord(1) }
-    private val ipName = RegisterName.newRegisterName("ip")
-    private val ipCode = registerCode(ipName)!!
-    private val axName = RegisterName.newRegisterName("ax")
-    private val axCode = registerCode(axName)!!
-
-    private lateinit var control: Control
-    private lateinit var registers: Registers
+internal class AluKtOneByteTest {
 
     @BeforeEach
     internal fun setUp() {
@@ -38,6 +29,12 @@ internal class AluKtTest {
 
         assert(newRegisters[ipCode] == one) { "IP not advanced correctly." }
         assert(newRegisters[axCode]!!.value >= 0)
+    }
+
+    @Test
+    fun `return`() {
+        // Default to failure until the test is fleshed out.
+        assert(false)
     }
 
 
@@ -64,17 +61,18 @@ internal class AluKtTest {
         assert(newRegisters[ipCode] == one) { "IP not advanced correctly." }
     }
 
+    private fun notImplemented() = "Not Implemented."
+
     @Test
-    fun negate() {
-        registers += axCode to ShamWord(8)
-
-        val newRegisters = negate(registers)
-
-        assert(newRegisters[ipCode] == one) { "IP not advanced correctly." }
-        assert(newRegisters[axCode] == ShamWord(-8)) { "Not negated." }
-
+    fun enable() {
+        // Default to failure until the test is fleshed out.
+        assert(false)
     }
 
-    private fun notImplemented() = "Not Implemented."
+    @Test
+    fun disable() {
+        // Default to failure until the test is fleshed out.
+        assert(false)
+    }
 
 }
