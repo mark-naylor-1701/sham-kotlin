@@ -33,8 +33,31 @@ internal class AluKtOneByteTest {
 
     @Test
     fun `return`() {
-        // Default to failure until the test is fleshed out.
-        assert(false)
+
+        val currentSP: ShamWord = registers[spCode]!!
+        val expectedSP = currentSP + ShamWord(6)
+
+        val twenty = ShamWord(20)
+        val eighty = ShamWord(80)
+
+        val virginMemory = newMemory(64)
+        val pushOneMemory = write(virginMemory, ShamWord(4), one)
+        val pushTwoMemory = write(pushOneMemory, ShamWord(2), eighty)
+        val pushThreeMemory = write(pushTwoMemory, zero, twenty)
+
+        val (newRegisters, _) = `return`(registers, pushThreeMemory)
+
+        val newSP: ShamWord = newRegisters[spCode]!!
+        assert(newSP == expectedSP) { "SP error: $newSP should be $expectedSP"}
+
+        val newIP: ShamWord = newRegisters[ipCode]!!
+        assert(newIP == twenty) { "IP error: $newIP should be $twenty" }
+
+        val newDR: ShamWord = newRegisters[drCode]!!
+        assert(newDR == eighty) { "DR errro: $newDR should be $eighty" }
+
+        val newFR: ShamWord = newRegisters[frCode]!!
+        assert(newFR == one) { "FR error: $newFR should be $one" }
     }
 
 
@@ -65,14 +88,18 @@ internal class AluKtOneByteTest {
 
     @Test
     fun enable() {
-        // Default to failure until the test is fleshed out.
-        assert(false)
+        val (newRegisters, newControl) = enable(registers, control)
+
+        assert(newControl.isInterrupted) { "Not interrupt not enabled."}
+        assert(newRegisters[ipCode] == one) { "IP not advanced correctly." }
     }
 
     @Test
     fun disable() {
-        // Default to failure until the test is fleshed out.
-        assert(false)
+        val (newRegisters, newControl) = enable(registers, control)
+
+        assert(newControl.isInterrupted) { "Not interrupt not enabled."}
+        assert(newRegisters[ipCode] == one) { "IP not advanced correctly." }
     }
 
 }

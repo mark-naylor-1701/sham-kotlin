@@ -22,7 +22,7 @@ typealias RegisterMemory = Pair<Registers, Memory>
 
 typealias OneByteCommand = (Registers) -> Registers
 typealias OneByteCommandControl = (Registers, Control) -> RegisterControl
-typealias OneByteCommendMemory = (Registers, Memory) -> RegisterMemory
+typealias OneByteCommandMemory = (Registers, Memory) -> RegisterMemory
 
 // All two byte command require memory access to fetch register operand(s).
 typealias TwoByteCommand = (Registers, Memory) -> Registers
@@ -51,6 +51,10 @@ private val axCode by lazy {
     registerCode(RegisterName.newRegisterName("ax"))!!
 }
 
+private val spCode by lazy {
+    registerCode(RegisterName.newRegisterName("sp"))!!
+}
+
 fun random(registers: Registers): Registers {
     // Places a pseudo-random non-negative integer between 0 and (2^15 -1),
     // inclusive, into register AX.
@@ -65,16 +69,34 @@ fun random(registers: Registers): Registers {
 }
 
 // Function differs from opcode, because "return" is a Kotlin reserved word.
-fun `return`() {
+fun `return`(registers: Registers, memory: Memory): RegisterMemory {
     // Restore the IP, the DR, and the FR registers — causing the next command
     // after a previous CALL or INTERRUPT to be executed.
     println("return")
+
+    val currentSP = registers[spCode]!!
+    val registersNewSP: Registers = registers + (spCode to (currentSP + ShamWord(6)))
+    val registersNewIP: Registers = registersNewSP + (ipCode to readWord(memory, currentSP))
+    val registersNewDR: Registers = registersNewIP + (drCode to readWord(memory, currentSP + two))
+    val registersNewFR: Registers = registersNewDR + (frCode to readWord(memory, currentSP + four))
+
+    val newRegisters = registersNewFR
+    return newRegisters to memory
 }
 
 
 class TerminateException(msg: String): Exception(msg)
+
 private val ipCode by lazy {
     registerCode(RegisterName.newRegisterName("ip"))!!
+}
+
+private val drCode by lazy {
+    registerCode(RegisterName.newRegisterName("dr"))!!
+}
+
+private val frCode by lazy {
+    registerCode(RegisterName.newRegisterName("fr"))!!
 }
 
 fun terminate(registers: Registers, control: Control): RegisterControl {
@@ -115,18 +137,28 @@ fun traceOff(registers: Registers, control: Control): RegisterControl {
     return newRegisters to newControl
 }
 
-fun enable() {
+fun enable(registers: Registers, control: Control): RegisterControl {
     // Permits the clock to increment and to allow testing of its value against
     // the word in location zero; when equal an interrupt will occur to location
     // 12.
     println("enable")
+
+    val newControl = control.copy(isInterrupted = true)
+    val newRegisters = advanceOne(registers)
+
+    return newRegisters to newControl
 }
 
-fun disable() {
+fun disable(registers: Registers, control: Control): RegisterControl {
     // Prevents any further clock modification or testing; no interrupt will
     // occur until a future ENABLE is executed. The internal clock is reset to
     // zero.
     println("disable")
+
+    val newControl = control.copy(isInterrupted = false)
+    val newRegisters = advanceOne(registers)
+
+    return newRegisters to newControl
 }
 
 // Two byte commands
